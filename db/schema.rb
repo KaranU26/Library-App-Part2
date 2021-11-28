@@ -32,21 +32,6 @@ ActiveRecord::Schema.define(version: 2021_11_27_175704) do
     t.integer "branchnumber"
   end
 
-  create_table "branches", force: :cascade do |t|
-    t.string "branch_name"
-    t.string "address"
-    t.integer "phone_number"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
-  create_table "branches_books", force: :cascade do |t|
-    t.integer "branch_id"
-    t.integer "book_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
   create_table "user_books", force: :cascade do |t|
     t.integer "user_id"
     t.integer "book_id"
