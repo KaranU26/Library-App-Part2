@@ -30,6 +30,9 @@
         <td><%= button_to 'Borrow', id: book.id, action: :checkout %></td>
         <% end %>
         <% end %>
+        <% if book.copies < 1%>
+        <td><%= button_to 'Notify Me', id: book.id, action: :notify %></td>
+        <% end %>
       </tr>
     <% end %>
   </table>

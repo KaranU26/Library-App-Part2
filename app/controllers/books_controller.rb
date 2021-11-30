@@ -45,16 +45,19 @@ class BooksController < ApplicationController
 
     def update
         @editbook = Book.find(params[:id])
-        respond_to do |format|
-            format.html do
-                @editbook.fetch(:editbook).update(params.require(:editbook).permit(:title, :author, :genre, :sub_genre, :pages, :publisher, :copies))
-            end
-        end
+        @editbook.update(title: params[:editbook][:title], author: params[:editbook][:author], genre: params[:editbook][:genre], sub_genre: params[:editbook][:sub_genre], pages: params[:editbook][:pages], publisher: params[:editbook][:publisher], copies: params[:editbook][:copies])
+        redirect_to editbook_path(@editbook) 
     end
 
     def edit
         @editbook = Book.find(params[:id])
     end
+
+    def notify
+        @booktonotify = Book.find(params[:id])
+        @user = current_user
+        UserMailer.book_notify(@user, @booktonotify).deliver_now 
+    end 
 
     def checkout
         @book1 = Book.find(params[:id])
@@ -63,20 +66,20 @@ class BooksController < ApplicationController
         if @user.books.find_by_id(@book1)
             flash[:alert] = "Book already checked out!"
         else
-            @user.books << @book1
+            @book1ref = @book1
+            @book1ref.checkoutdate = Date.today
+            @user.books << @book1ref
             @book1.copies = @book1.copies.to_i - 1 #copies not subtracting for some reason
             @book1.save
-            @user.books.last.checkoutdate = DateTime.now
         end
-
-        #@book1.checkedoutusers.clear
-        #@user.books.clear
-        #@user.user_books.clear
-        puts @user.books.last.checkoutdate
-        puts @user.books
-        puts @book1.copies
-        puts @user.user_books.find_by_id(1)
-        puts @book1.checkedoutusers
+        @currentdate = Date.today
+        @user.books.each do |usercheck|
+            puts usercheck.checkoutdate
+            @latedate = usercheck.checkoutdate + 7.days
+            if @currentdate >= @latedate
+                UserMailer.post_created(@user, @book1).deliver_now       
+            end
+        end
     end
     
     def return
